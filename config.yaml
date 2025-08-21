@@ -1,0 +1,13 @@
+app:
+  port: 8080
+  shutdown_timeout: 10s
+retry:
+  backoff: exponential
+  max_attempts: 5
+  jitter: 0.1
+service:
+  cache_size: 1000
+kafka:
+  brokers:
+    - kafka:9092
+  topic: orders
