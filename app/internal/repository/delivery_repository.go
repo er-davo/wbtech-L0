@@ -30,16 +30,9 @@ func (r *deliveryRepository) Create(ctx context.Context, tx pgx.Tx, delivery *mo
 		return ErrNilValue
 	}
 
-	query := `
-		INSERT INTO delivery (
-			name, phone, zip, city, address, region, email
-		) VALUES ( $1, $2, $3, $4, $5, $6, $7)
-		RETURNING id;
-	`
-
 	var exec pgx.Row
 	if tx != nil {
-		exec = tx.QueryRow(ctx, query,
+		exec = tx.QueryRow(ctx, insertDeliveryQuery,
 			delivery.Name,
 			delivery.Phone,
 			delivery.Zip,
@@ -49,7 +42,7 @@ func (r *deliveryRepository) Create(ctx context.Context, tx pgx.Tx, delivery *mo
 			delivery.Email,
 		)
 	} else {
-		exec = r.db.QueryRow(ctx, query,
+		exec = r.db.QueryRow(ctx, insertDeliveryQuery,
 			delivery.Name,
 			delivery.Phone,
 			delivery.Zip,

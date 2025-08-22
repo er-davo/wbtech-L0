@@ -12,7 +12,6 @@ import (
 type OrdersRepository interface {
 	Create(ctx context.Context, tx pgx.Tx, order *models.Order) error
 	Get(ctx context.Context, tx pgx.Tx, id int) (*models.Order, error)
-	GetLastN(ctx context.Context, tx pgx.Tx, n int) ([]*models.Order, error)
 	Update(ctx context.Context, tx pgx.Tx, order *models.Order) error
 	Delete(ctx context.Context, tx pgx.Tx, id int) error
 }
@@ -30,21 +29,9 @@ func (r *ordersRepository) Create(ctx context.Context, tx pgx.Tx, order *models.
 		return ErrNilValue
 	}
 
-	query := `
-		INSERT INTO orders (
-			order_id, track_number, entry,
-			delivery_id, payment_id, locale,
-			internal_signature, customer_id,
-			delivery_service, shardkey,	sm_id,
-			date_created, oof_shard
-		) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-		ON CONFLICT (order_id) DO NOTHING
-		RETURNING id;
-	`
-
 	var exec pgx.Row
 	if tx != nil {
-		exec = tx.QueryRow(ctx, query,
+		exec = tx.QueryRow(ctx, insertOrderQuery,
 			order.OrderUID,
 			order.TrackNumber,
 			order.Entry,
@@ -60,7 +47,7 @@ func (r *ordersRepository) Create(ctx context.Context, tx pgx.Tx, order *models.
 			order.OOFShard,
 		)
 	} else {
-		exec = r.db.QueryRow(ctx, query,
+		exec = r.db.QueryRow(ctx, insertOrderQuery,
 			order.OrderUID,
 			order.TrackNumber,
 			order.Entry,

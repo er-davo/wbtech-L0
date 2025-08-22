@@ -30,25 +30,9 @@ func (r *paymentRepository) Create(ctx context.Context, tx pgx.Tx, payment *mode
 		return ErrNilValue
 	}
 
-	query := `
-		INSERT INTO payments (
-			transaction,
-			request_id,
-			currency,
-			provider,
-			amount,
-			payment_dt,
-			bank,
-			delivery_cost,
-			goods_total,
-			custom_fee
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-		RETURNING id;
-	`
-
 	var exec pgx.Row
 	if tx != nil {
-		exec = tx.QueryRow(ctx, query,
+		exec = tx.QueryRow(ctx, insertPaymentQuery,
 			payment.Transaction,
 			payment.RequestID,
 			payment.Currency,
@@ -61,7 +45,7 @@ func (r *paymentRepository) Create(ctx context.Context, tx pgx.Tx, payment *mode
 			payment.CustomFee,
 		)
 	} else {
-		exec = r.db.QueryRow(ctx, query,
+		exec = r.db.QueryRow(ctx, insertPaymentQuery,
 			payment.Transaction,
 			payment.RequestID,
 			payment.Currency,

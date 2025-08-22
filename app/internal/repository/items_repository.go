@@ -35,29 +35,11 @@ func (r *itemsRepository) CreateItem(ctx context.Context, tx pgx.Tx, item *model
 		return ErrNilValue
 	}
 
-	query := `
-		INSERT INTO items (
-			order_id,
-			chrt_id,
-			track_number,
-			price,
-			rid,
-			name,
-			sale,
-			size,
-			total_price,
-			nm_id,
-			brand,
-			status
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-		RETURNING id;
-	`
-
 	var err error
 	if tx == nil {
 		err = r.db.QueryRow(
 			ctx,
-			query,
+			insertItemQuery,
 			item.OrderID,
 			item.ChrtID,
 			item.TrackNumber,
@@ -74,7 +56,7 @@ func (r *itemsRepository) CreateItem(ctx context.Context, tx pgx.Tx, item *model
 	} else {
 		err = tx.QueryRow(
 			ctx,
-			query,
+			insertItemQuery,
 			item.OrderID,
 			item.ChrtID,
 			item.TrackNumber,
@@ -105,23 +87,8 @@ func (r *itemsRepository) CreateItems(ctx context.Context, tx pgx.Tx, items []*m
 
 	batch := &pgx.Batch{}
 	for _, item := range items {
-		batch.Queue(`
-            INSERT INTO items (
-                order_id,
-                chrt_id,
-                track_number,
-                price,
-                rid,
-                name,
-                sale,
-                size,
-                total_price,
-                nm_id,
-                brand,
-                status
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-            RETURNING id;
-        `,
+		batch.Queue(
+			insertItemQuery,
 			item.OrderID,
 			item.ChrtID,
 			item.TrackNumber,
@@ -143,7 +110,7 @@ func (r *itemsRepository) CreateItems(ctx context.Context, tx pgx.Tx, items []*m
 
 		for _, item := range items {
 			if err := br.QueryRow().Scan(&item.ID); err != nil {
-				return err
+				return wrapDBError(err)
 			}
 		}
 	} else {
@@ -167,21 +134,7 @@ func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.I
 
 	item := new(models.Item)
 	item.ID = id
-	query := `
-		SELECT
-			order_id,
-			chrt_id,
-			track_number,
-			price,
-			rid,
-			name,
-			sale,
-			size,
-			total_price,
-			nm_id,
-			brand,
-			status
-		FROM items
+	query := selectItemsWitoutWhereQuery + `
 		WHERE id = $1;
 	`
 
@@ -192,6 +145,7 @@ func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.I
 			query,
 			item.ID,
 		).Scan(
+			&item.ID,
 			&item.OrderID,
 			&item.ChrtID,
 			&item.TrackNumber,
@@ -211,6 +165,7 @@ func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.I
 			query,
 			item.ID,
 		).Scan(
+			&item.ID,
 			&item.OrderID,
 			&item.ChrtID,
 			&item.TrackNumber,
@@ -234,22 +189,7 @@ func (r *itemsRepository) GetItems(ctx context.Context, tx pgx.Tx, orderID int) 
 		return nil, ErrInvalidID
 	}
 
-	query := `
-		SELECT
-			id,
-			order_id,
-			chrt_id,
-			track_number,
-			price,
-			rid,
-			name,
-			sale,
-			size,
-			total_price,
-			nm_id,
-			brand,
-			status
-		FROM items
+	query := selectItemsWitoutWhereQuery + `
 		WHERE order_id = $1;
 	`
 
