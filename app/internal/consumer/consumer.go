@@ -42,7 +42,12 @@ func (c *Consumer) Run(ctx context.Context) {
 
 		eo := new(models.ExtendedOrder)
 		if err := json.Unmarshal(m.Value, eo); err != nil {
-			c.log.Warn("invalid message", zap.Error(err), zap.ByteString("message", m.Value))
+			c.log.Warn("invalid json model from message", zap.Error(err), zap.ByteString("json_model", m.Value))
+			continue
+		}
+
+		if err := models.Validate(&eo); err != nil {
+			c.log.Warn("invalid model", zap.Error(err))
 			continue
 		}
 
@@ -64,7 +69,7 @@ func (c *Consumer) Run(ctx context.Context) {
 				c.log.Info("consumer stopped by context")
 				return
 			}
-			c.log.Error("failed to create order, exceeded max attempts",
+			c.log.Error("failed to create order",
 				zap.Int("id", eo.Order.ID),
 				zap.Error(err),
 			)

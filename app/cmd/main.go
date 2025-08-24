@@ -17,9 +17,9 @@ func main() {
 	log := logger.NewLogger()
 	defer log.Sync()
 
-	yamlConfigFilePath := os.Getenv("YAML_CONFIG_FILE_PATH")
+	yamlConfigFilePath := os.Getenv("CONFIG_PATH")
 	if yamlConfigFilePath == "" {
-		log.Fatal("yamlConfigFilePath is empty")
+		log.Fatal("env ConfigPath is empty")
 	}
 	cfg, err := config.Load(yamlConfigFilePath)
 	if err != nil {
