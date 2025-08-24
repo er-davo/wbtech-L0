@@ -12,6 +12,7 @@ import (
 type ExtendedOrderRepository interface {
 	CreateExtendedOrder(ctx context.Context, eo *models.ExtendedOrder) error
 	GetExtendedOrder(ctx context.Context, id int) (*models.ExtendedOrder, error)
+	GetLastExtendedOrders(ctx context.Context, limit int) ([]*models.ExtendedOrder, error)
 	Orders() OrdersRepository
 	Items() ItemsRepository
 	Delivery() DeliveryRepository

@@ -38,12 +38,12 @@ func New(opts ...RetryOption) Retrier {
 func (r *retrier) Do(ctx context.Context, f AttemptFunc) error {
 	var err error
 
-	for attempt := 0; attempt < r.maxAttempts; attempt++ {
+	for attempt := 0; r.maxAttempts == 0 || attempt < r.maxAttempts; attempt++ {
 		if ctxErr := ctx.Err(); ctxErr != nil {
 			return ctxErr
 		}
 
-		if err = f(attempt); err != nil {
+		if err = f(attempt); err == nil {
 			return nil
 		}
 

@@ -6,7 +6,7 @@ retry:
   max_attempts: 5
   jitter: 0.1
 service:
-  cache_size: 1000
+  cache_size: 100
 kafka:
   brokers:
     - kafka:9092

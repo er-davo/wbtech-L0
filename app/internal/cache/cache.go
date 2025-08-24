@@ -5,7 +5,7 @@ import (
 )
 
 type Cache[K comparable, V any] struct {
-	mu       sync.Mutex
+	mu       sync.RWMutex
 	cache    map[K]V
 	list     []K
 	capacity int
@@ -32,6 +32,7 @@ func (c *Cache[K, V]) Add(key K, value V) {
 	}
 
 	c.cache[key] = value
+	c.list = append(c.list, key)
 }
 
 func (c *Cache[K, V]) Get(key K) (V, bool) {
@@ -47,4 +48,10 @@ func (c *Cache[K, V]) Clear() {
 	c.cache = make(map[K]V)
 	c.list = []K{}
 	c.mu.Unlock()
+}
+
+func (c *Cache[K, V]) Len() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return len(c.cache)
 }

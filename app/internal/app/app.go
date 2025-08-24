@@ -43,16 +43,10 @@ func New(ctx context.Context, cfg *config.Config, log *zap.Logger) (*App, error)
 
 	retrier := newServiceRetrier(cfg.Retry, isRetryableFunc)
 
-	deliveryRepo := repository.NewDeliveryRepository(db)
-	paymentRepo := repository.NewPaymentRepository(db)
-	ordersRepo := repository.NewOrdersRepository(db)
-	itemsRepo := repository.NewItemsRepository(db)
+	repo := repository.NewExtendedOrderRepository(db)
 	service := service.NewService(
 		db,
-		ordersRepo,
-		itemsRepo,
-		paymentRepo,
-		deliveryRepo,
+		repo,
 		cfg.Service.CacheSize,
 		log,
 	)

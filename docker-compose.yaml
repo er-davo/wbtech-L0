@@ -25,9 +25,11 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
+      - "29092:29092"
     env_file:
       - .env
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z localhost 9092"]
       interval: 10s
@@ -38,8 +40,8 @@ services:
     build: .
     container_name: order-service
     depends_on:
-      - postgres
-      - kafka
+      postgres:
+      kafka:
     env_file:
       - .env
     ports:
@@ -47,3 +49,4 @@ services:
 
 volumes:
   postgres_data:
+  kafka_data:
