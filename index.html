@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Lookup</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input { padding: 0.5rem; width: 300px; }
+    button { padding: 0.5rem 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Lookup Order</h1>
+  <input type="text" id="orderId" placeholder="Enter order UID">
+  <button onclick="fetchOrder()">Get Order</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function fetchOrder() {
+      const id = document.getElementById('orderId').value.trim();
+      if (!id) return alert("Enter order UID");
+
+      const res = await fetch(`http://localhost:8080/order/${id}`);
+      const pre = document.getElementById('result');
+      if (!res.ok) {
+        pre.textContent = `Error: ${res.status} ${res.statusText}`;
+        return;
+      }
+
+      const data = await res.json();
+      pre.textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
