@@ -82,7 +82,7 @@ func (r *paymentRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models
 			delivery_cost,
 			goods_total,
 			custom_fee
-		FROM payments
+		FROM payment
 		WHERE id=$1;
 	`
 
@@ -162,7 +162,7 @@ func (r *paymentRepository) Update(ctx context.Context, tx pgx.Tx, payment *mode
 	}
 
 	query := `
-		UPDATE payments SET
+		UPDATE payment SET
 			transaction = $1,
 			request_id = $2,
 			currency = $3,
@@ -220,7 +220,7 @@ func (r *paymentRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error
 		return ErrInvalidID
 	}
 
-	query := `DELETE FROM payments WHERE id = $1;`
+	query := `DELETE FROM payment WHERE id = $1;`
 
 	var cmd pgconn.CommandTag
 	var err error

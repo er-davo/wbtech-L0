@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -28,8 +33,6 @@ services:
       - "29092:29092"
     env_file:
       - .env
-    volumes:
-      - kafka_data:/var/lib/kafka/data
     healthcheck:
       test: ["CMD", "bash", "-c", "nc -z localhost 9092"]
       interval: 10s
@@ -41,7 +44,9 @@ services:
     container_name: order-service
     depends_on:
       postgres:
+        condition: service_healthy
       kafka:
+        condition: service_healthy
     env_file:
       - .env
     ports:
@@ -49,4 +54,3 @@ services:
 
 volumes:
   postgres_data:
-  kafka_data:

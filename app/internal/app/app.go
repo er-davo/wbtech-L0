@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"test-task/internal/config"
 	"test-task/internal/consumer"
 	"test-task/internal/database"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
@@ -40,6 +42,10 @@ func New(ctx context.Context, cfg *config.Config, log *zap.Logger) (*App, error)
 	}
 
 	e := echo.New()
+
+	e.Use(middleware.Logger())
+
+	e.Static("/", "public")
 
 	retrier := newServiceRetrier(cfg.Retry, isRetryableFunc)
 
@@ -72,17 +78,12 @@ func New(ctx context.Context, cfg *config.Config, log *zap.Logger) (*App, error)
 }
 
 func (a *App) Run(ctx context.Context) error {
-	var err error
-
 	go a.consumer.Run(ctx)
 
-	go func() {
-		if serverErr := a.server.Start(":" + a.cfg.App.Port); serverErr != nil {
-			err = serverErr
-		}
-	}()
-
-	return err
+	if err := a.server.Start(":" + a.cfg.App.Port); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+	return nil
 }
 
 func (a *App) Shutdown() error {

@@ -46,7 +46,7 @@ func (c *Consumer) Run(ctx context.Context) {
 			continue
 		}
 
-		if err := models.Validate(&eo); err != nil {
+		if err := models.Validate(eo); err != nil {
 			c.log.Warn("invalid model", zap.Error(err))
 			continue
 		}

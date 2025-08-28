@@ -123,7 +123,8 @@ func (r *extendedOrderRepository) GetExtendedOrder(ctx context.Context, id int) 
 		&eo.Order.CustomerID, &eo.Order.DeliveryService,
 		&eo.Order.ShardKey, &eo.Order.SMID, &eo.Order.DateCreated, &eo.Order.OOFShard,
 
-		&eo.Delivery.ID, &eo.Delivery.Name, &eo.Delivery.Phone, &eo.Delivery.Zip, &eo.Delivery.City, &eo.Delivery.Address,
+		&eo.Delivery.ID, &eo.Delivery.Name, &eo.Delivery.Phone, &eo.Delivery.Zip, &eo.Delivery.City,
+		&eo.Delivery.Address, &eo.Delivery.Region, &eo.Delivery.Email,
 
 		&eo.Payment.ID, &eo.Payment.Transaction, &eo.Payment.RequestID,
 		&eo.Payment.Currency, &eo.Payment.Provider, &eo.Payment.Amount,
@@ -197,7 +198,10 @@ func (r *extendedOrderRepository) GetLastExtendedOrders(ctx context.Context, lim
 			&eo.Order.Locale, &eo.Order.InternalSignature,
 			&eo.Order.CustomerID, &eo.Order.DeliveryService,
 			&eo.Order.ShardKey, &eo.Order.SMID, &eo.Order.DateCreated, &eo.Order.OOFShard,
-			&eo.Delivery.ID, &eo.Delivery.Name, &eo.Delivery.Phone, &eo.Delivery.Zip, &eo.Delivery.City, &eo.Delivery.Address,
+
+			&eo.Delivery.ID, &eo.Delivery.Name, &eo.Delivery.Phone, &eo.Delivery.Zip, &eo.Delivery.City,
+			&eo.Delivery.Address, &eo.Delivery.Region, &eo.Delivery.Email,
+
 			&eo.Payment.ID, &eo.Payment.Transaction, &eo.Payment.RequestID,
 			&eo.Payment.Currency, &eo.Payment.Provider, &eo.Payment.Amount,
 			&eo.Payment.PaymentDate, &eo.Payment.Bank, &eo.Payment.DeliveryCost,

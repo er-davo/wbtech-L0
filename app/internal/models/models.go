@@ -31,17 +31,17 @@ type Delivery struct {
 }
 
 type Payment struct {
-	ID           int       `json:"id"`
-	Transaction  string    `json:"transaction_id" validate:"required"`
-	RequestID    string    `json:"request_id" validate:"omitempty"`
-	Currency     string    `json:"currency" validate:"required,len=3,uppercase"`
-	Provider     string    `json:"provider" validate:"required"`
-	Amount       float64   `json:"amount" validate:"required,gt=0"`
-	PaymentDate  time.Time `json:"payment_date" validate:"required"`
-	Bank         string    `json:"bank" validate:"required"`
-	DeliveryCost float64   `json:"delivery_cost" validate:"required,gt=0"`
-	GoodsTotal   float64   `json:"goods_total" validate:"required,gt=0"`
-	CustomFee    float32   `json:"custom_fee" validate:"required,gte=0"`
+	ID           int     `json:"id"`
+	Transaction  string  `json:"transaction" validate:"required"`
+	RequestID    string  `json:"request_id" validate:"omitempty"`
+	Currency     string  `json:"currency" validate:"required,len=3,uppercase"`
+	Provider     string  `json:"provider" validate:"required"`
+	Amount       float64 `json:"amount" validate:"required,gt=0"`
+	PaymentDate  int64   `json:"payment_dt" validate:"required"`
+	Bank         string  `json:"bank" validate:"required"`
+	DeliveryCost float64 `json:"delivery_cost" validate:"required,gt=0"`
+	GoodsTotal   float64 `json:"goods_total" validate:"required,gt=0"`
+	CustomFee    float64 `json:"custom_fee"`
 }
 
 type Order struct {
@@ -55,7 +55,7 @@ type Order struct {
 	InternalSignature string    `json:"internal_signature" validate:"omitempty"`
 	CustomerID        string    `json:"customer_id" validate:"required"`
 	DeliveryService   string    `json:"delivery_service" validate:"required"`
-	ShardKey          string    `json:"shard_key" validate:"required"`
+	ShardKey          string    `json:"shardkey" validate:"required"`
 	SMID              int       `json:"sm_id" validate:"required"`
 	DateCreated       time.Time `json:"date_created" validate:"required"`
 	OOFShard          string    `json:"oof_shard" validate:"required"`

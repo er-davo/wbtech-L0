@@ -18,6 +18,7 @@ type Config struct {
 type App struct {
 	Port            string        `yaml:"port"`
 	ShutdownTimeout time.Duration `yaml:"shutdown_timeout"`
+	MirgationDir    string
 }
 
 type Retry struct {
@@ -48,6 +49,7 @@ func Load(yamlConfigFilePath string) (*Config, error) {
 	}
 
 	cfg.DatabaseURL = os.Getenv("DATABASE_URL")
+	cfg.App.MirgationDir = os.Getenv("MIGRATION_DIR")
 
 	if len(cfg.Kafka.Brokers) == 0 && os.Getenv("KAFKA_BROKER") != "" {
 		cfg.Kafka.Brokers = []string{os.Getenv("KAFKA_BROKER")}

@@ -3,7 +3,7 @@ package repository
 const (
 	selectExtendedOrderWithoutItemsQuery = `
 	SELECT
-		o.id, o.order_id, o.track_number,
+		o.id, o.order_uid, o.track_number,
 		o.entry, o.delivery_id, o.payment_id,
 		o.locale, o.internal_signature,
 		o.customer_id, o.delivery_service,
@@ -17,19 +17,19 @@ const (
 		p.goods_total, p.custom_fee
 
 	FROM orders AS o
-	INNER JOIN deliveries AS d ON o.delivery_id = d.id
-	INNER JOIN payments AS p ON o.payment_id = p.id
+	INNER JOIN delivery AS d ON o.delivery_id = d.id
+	INNER JOIN payment AS p ON o.payment_id = p.id
 `
 
 	insertOrderQuery = `
 	INSERT INTO orders (
-			order_id, track_number, entry,
+			order_uid, track_number, entry,
 			delivery_id, payment_id, locale,
 			internal_signature, customer_id,
 			delivery_service, shardkey,	sm_id,
 			date_created, oof_shard
 		) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-		ON CONFLICT (order_id) DO NOTHING
+		ON CONFLICT (order_uid) DO NOTHING
 		RETURNING id;
 	`
 
@@ -41,7 +41,7 @@ const (
 	`
 
 	insertPaymentQuery = `
-	INSERT INTO payments (
+	INSERT INTO payment (
 			transaction,
 			request_id,
 			currency,

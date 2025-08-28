@@ -61,6 +61,6 @@ func (h *Handler) Get(c echo.Context) error {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	g := e.Group("/orders")
+	g := e.Group("/order")
 	g.GET("/:id", h.Get)
 }
