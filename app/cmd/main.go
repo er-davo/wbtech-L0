@@ -33,33 +33,19 @@ func main() {
 		log.Fatal("error on migrating database", zap.Error(err))
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
 
 	app, err := app.New(ctx, cfg, log)
 	if err != nil {
 		log.Fatal("error on creating app", zap.Error(err))
 	}
 
-	errCh := make(chan error, 1)
-	go func() {
-		if runErr := app.Run(ctx); runErr != nil {
-			errCh <- runErr
+	if err := app.Run(ctx); err != nil {
+		if ctx.Err() != nil {
+			log.Info("app stopped by context")
+		} else {
+			log.Error("app exited with error", zap.Error(err))
 		}
-	}()
-
-	select {
-	case <-quit:
-		log.Info("shutting down gracefully...")
-		cancel()
-	case runErr := <-errCh:
-		log.Error("application exited with error", zap.Error(runErr))
-		cancel()
-	}
-
-	if err := app.Shutdown(); err != nil {
-		log.Error("failed to shutdown application", zap.Error(err))
 	}
 }

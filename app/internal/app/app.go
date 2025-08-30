@@ -80,10 +80,14 @@ func New(ctx context.Context, cfg *config.Config, log *zap.Logger) (*App, error)
 func (a *App) Run(ctx context.Context) error {
 	go a.consumer.Run(ctx)
 
-	if err := a.server.Start(":" + a.cfg.App.Port); err != nil && err != http.ErrServerClosed {
-		return err
-	}
-	return nil
+	go func() {
+		if err := a.server.Start(":" + a.cfg.App.Port); err != nil && err != http.ErrServerClosed {
+			a.log.Error("failed to start server", zap.Error(err))
+		}
+	}()
+
+	<-ctx.Done()
+	return a.Shutdown()
 }
 
 func (a *App) Shutdown() error {
