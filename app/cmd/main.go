@@ -27,7 +27,6 @@ func main() {
 		log.Fatal("error on loading config", zap.Error(err))
 	}
 
-	log.Info("config", zap.Any("config", cfg))
 	err = database.Migrate(cfg.App.MirgationDir, cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal("error on migrating database", zap.Error(err))
