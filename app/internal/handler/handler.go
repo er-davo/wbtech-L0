@@ -28,7 +28,7 @@ func NewHandler(service *service.Service, retry retry.Retrier, log *zap.Logger) 
 }
 
 func (h *Handler) Get(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "Invalid ID format",
@@ -37,22 +37,22 @@ func (h *Handler) Get(c echo.Context) error {
 
 	eo := new(models.ExtendedOrder)
 
-	h.log.Info("geting order", zap.Int("id", id))
+	h.log.Info("geting order", zap.Int64("id", id))
 
 	if err := h.retry.Do(c.Request().Context(), func(attempt int) error {
 		var err error
 		if eo, err = h.service.GetExtendedOrder(c.Request().Context(), id); err != nil {
-			h.log.Warn("error on getting order", zap.Int("id", id), zap.Error(err), zap.Int("attempt", attempt))
+			h.log.Warn("error on getting order", zap.Int64("id", id), zap.Error(err), zap.Int("attempt", attempt))
 			return err
 		}
-		h.log.Info("order found", zap.Int("id", id))
+		h.log.Info("order found", zap.Int64("id", id))
 		return nil
 	}); err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			h.log.Warn("order not found", zap.Int("id", id))
+			h.log.Warn("order not found", zap.Int64("id", id))
 			return c.JSON(http.StatusNotFound, map[string]string{"message": "Order not found"})
 		} else {
-			h.log.Error("error on getting order", zap.Int("id", id), zap.Error(err))
+			h.log.Error("error on getting order", zap.Int64("id", id), zap.Error(err))
 			return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal server error"})
 		}
 	}

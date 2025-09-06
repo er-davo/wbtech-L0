@@ -1,5 +1,5 @@
 CREATE TABLE payment (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     transaction TEXT NOT NULL,
     request_id TEXT,
     currency VARCHAR(3) NOT NULL,

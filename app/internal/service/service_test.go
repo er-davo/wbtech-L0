@@ -18,7 +18,7 @@ func TestService_Create(t *testing.T) {
 
 	service := NewService(nil, mockRepo, 10, zap.NewNop())
 
-	id := 123
+	var id int64 = 123
 	eo := &models.ExtendedOrder{Order: models.Order{ID: id}}
 
 	mockRepo.EXPECT().
@@ -38,7 +38,7 @@ func TestService_Get(t *testing.T) {
 
 	service := NewService(nil, mockRepo, 10, zap.NewNop())
 
-	id := 123
+	var id int64 = 123
 	expected := &models.ExtendedOrder{Order: models.Order{ID: id}}
 
 	mockRepo.EXPECT().
@@ -59,7 +59,7 @@ func TestService_GetFromCache(t *testing.T) {
 
 	service := NewService(nil, mockRepo, 10, zap.NewNop())
 
-	id := 123
+	var id int64 = 123
 	expected := &models.ExtendedOrder{Order: models.Order{ID: id}}
 
 	service.cache.Add(id, expected)

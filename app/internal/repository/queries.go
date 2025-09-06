@@ -29,7 +29,8 @@ const (
 			delivery_service, shardkey,	sm_id,
 			date_created, oof_shard
 		) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-		ON CONFLICT (order_uid) DO NOTHING
+		ON CONFLICT (order_uid)
+		DO UPDATE SET order_uid = EXCLUDED.order_uid
 		RETURNING id;
 	`
 

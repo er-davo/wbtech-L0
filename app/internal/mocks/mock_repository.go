@@ -71,7 +71,7 @@ func (mr *MockExtendedOrderRepositoryMockRecorder) Delivery() *gomock.Call {
 }
 
 // GetExtendedOrder mocks base method.
-func (m *MockExtendedOrderRepository) GetExtendedOrder(ctx context.Context, id int) (*models.ExtendedOrder, error) {
+func (m *MockExtendedOrderRepository) GetExtendedOrder(ctx context.Context, id int64) (*models.ExtendedOrder, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetExtendedOrder", ctx, id)
 	ret0, _ := ret[0].(*models.ExtendedOrder)

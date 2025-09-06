@@ -11,8 +11,8 @@ import (
 
 type DeliveryRepository interface {
 	Create(ctx context.Context, tx pgx.Tx, delivery *models.Delivery) error
-	Get(ctx context.Context, tx pgx.Tx, id int) (*models.Delivery, error)
-	GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int) ([]*models.Delivery, error)
+	Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Delivery, error)
+	GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int64) ([]*models.Delivery, error)
 	Update(ctx context.Context, tx pgx.Tx, delivery *models.Delivery) error
 	Delete(ctx context.Context, tx pgx.Tx, id int64) error
 }
@@ -58,7 +58,7 @@ func (r *deliveryRepository) Create(ctx context.Context, tx pgx.Tx, delivery *mo
 	return wrapDBError(err)
 }
 
-func (r *deliveryRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.Delivery, error) {
+func (r *deliveryRepository) Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Delivery, error) {
 	if id <= 0 {
 		return nil, ErrInvalidID
 	}
@@ -96,7 +96,7 @@ func (r *deliveryRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*model
 	return delivery, wrapDBError(err)
 }
 
-func (r *deliveryRepository) GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int) ([]*models.Delivery, error) {
+func (r *deliveryRepository) GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int64) ([]*models.Delivery, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}

@@ -11,9 +11,9 @@ import (
 
 type OrdersRepository interface {
 	Create(ctx context.Context, tx pgx.Tx, order *models.Order) error
-	Get(ctx context.Context, tx pgx.Tx, id int) (*models.Order, error)
+	Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Order, error)
 	Update(ctx context.Context, tx pgx.Tx, order *models.Order) error
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Delete(ctx context.Context, tx pgx.Tx, id int64) error
 }
 
 type ordersRepository struct {
@@ -69,7 +69,7 @@ func (r *ordersRepository) Create(ctx context.Context, tx pgx.Tx, order *models.
 	return wrapDBError(err)
 }
 
-func (r *ordersRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.Order, error) {
+func (r *ordersRepository) Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Order, error) {
 	if id <= 0 {
 		return nil, ErrInvalidID
 	}
@@ -77,7 +77,7 @@ func (r *ordersRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.
 	query := `
 		SELECT
 			id,
-			order_id,
+			order_uid,
 			track_number,
 			entry,
 			delivery_id,
@@ -122,66 +122,6 @@ func (r *ordersRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.
 	return order, wrapDBError(err)
 }
 
-func (r *ordersRepository) GetLastN(ctx context.Context, tx pgx.Tx, n int) ([]*models.Order, error) {
-	if n <= 0 {
-		return nil, ErrInvalidID
-	}
-
-	query := `
-        SELECT
-			id, order_id, track_number, entry,
-			delivery_id, payment_id, locale,
-			internal_signature, customer_id,
-			delivery_service, shardkey,	sm_id,
-			date_created, oof_shard
-        FROM orders
-        ORDER BY date_created DESC
-        LIMIT $1;
-    `
-
-	var rows pgx.Rows
-	var err error
-	if tx != nil {
-		rows, err = tx.Query(ctx, query, n)
-	} else {
-		rows, err = r.db.Query(ctx, query, n)
-	}
-	if err != nil {
-		return nil, wrapDBError(err)
-	}
-	defer rows.Close()
-
-	orders := make([]*models.Order, 0, n)
-	for rows.Next() {
-		o := new(models.Order)
-		if err := rows.Scan(
-			&o.ID,
-			&o.OrderUID,
-			&o.TrackNumber,
-			&o.Entry,
-			&o.DeliveryID,
-			&o.PaymentID,
-			&o.Locale,
-			&o.InternalSignature,
-			&o.CustomerID,
-			&o.DeliveryService,
-			&o.ShardKey,
-			&o.SMID,
-			&o.DateCreated,
-			&o.OOFShard,
-		); err != nil {
-			return nil, wrapDBError(err)
-		}
-		orders = append(orders, o)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, wrapDBError(err)
-	}
-
-	return orders, nil
-}
-
 func (r *ordersRepository) Update(ctx context.Context, tx pgx.Tx, order *models.Order) error {
 	if order == nil {
 		return ErrNilValue
@@ -189,7 +129,7 @@ func (r *ordersRepository) Update(ctx context.Context, tx pgx.Tx, order *models.
 
 	query := `
 		UPDATE orders SET
-			order_id = $2,
+			order_uid = $2,
 			track_number = $3,
 			entry = $4,
 			delivery_id = $5,
@@ -247,7 +187,7 @@ func (r *ordersRepository) Update(ctx context.Context, tx pgx.Tx, order *models.
 	return wrapDBError(err)
 }
 
-func (r *ordersRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *ordersRepository) Delete(ctx context.Context, tx pgx.Tx, id int64) error {
 	if id <= 0 {
 		return ErrInvalidID
 	}

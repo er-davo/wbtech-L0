@@ -51,18 +51,18 @@ func (c *Consumer) Run(ctx context.Context) {
 			continue
 		}
 
-		c.log.Info("creating extended order...", zap.Int("id", eo.Order.ID))
+		c.log.Info("creating extended order...", zap.Int64("id", eo.Order.ID))
 
 		if err := c.retry.Do(ctx, func(attempt int) error {
 			if err := c.service.CreateExtendedOrder(ctx, eo); err != nil {
 				c.log.Warn("error on creating order",
-					zap.Int("id", eo.Order.ID),
+					zap.Int64("id", eo.Order.ID),
 					zap.Error(err),
 					zap.Int("attempt", attempt),
 				)
 				return err
 			}
-			c.log.Info("order created", zap.Int("attempt", attempt), zap.Int("id", eo.Order.ID))
+			c.log.Info("order created", zap.Int("attempt", attempt), zap.Int64("id", eo.Order.ID))
 			return nil
 		}); err != nil {
 			if ctx.Err() != nil {
@@ -70,7 +70,7 @@ func (c *Consumer) Run(ctx context.Context) {
 				return
 			}
 			c.log.Error("failed to create order",
-				zap.Int("id", eo.Order.ID),
+				zap.Int64("id", eo.Order.ID),
 				zap.Error(err),
 			)
 		}

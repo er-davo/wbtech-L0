@@ -11,10 +11,10 @@ import (
 
 type PaymentRepository interface {
 	Create(ctx context.Context, tx pgx.Tx, payment *models.Payment) error
-	Get(ctx context.Context, tx pgx.Tx, id int) (*models.Payment, error)
-	GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int) ([]*models.Payment, error)
+	Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Payment, error)
+	GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int64) ([]*models.Payment, error)
 	Update(ctx context.Context, tx pgx.Tx, payment *models.Payment) error
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Delete(ctx context.Context, tx pgx.Tx, id int64) error
 }
 
 type paymentRepository struct {
@@ -64,7 +64,7 @@ func (r *paymentRepository) Create(ctx context.Context, tx pgx.Tx, payment *mode
 	return wrapDBError(err)
 }
 
-func (r *paymentRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.Payment, error) {
+func (r *paymentRepository) Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Payment, error) {
 	if id <= 0 {
 		return nil, ErrInvalidID
 	}
@@ -111,7 +111,7 @@ func (r *paymentRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models
 	return payment, wrapDBError(err)
 }
 
-func (r *paymentRepository) GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int) ([]*models.Payment, error) {
+func (r *paymentRepository) GetByOrderIDs(ctx context.Context, tx pgx.Tx, ids []int64) ([]*models.Payment, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -215,7 +215,7 @@ func (r *paymentRepository) Update(ctx context.Context, tx pgx.Tx, payment *mode
 	return wrapDBError(err)
 }
 
-func (r *paymentRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *paymentRepository) Delete(ctx context.Context, tx pgx.Tx, id int64) error {
 	if id <= 0 {
 		return ErrInvalidID
 	}

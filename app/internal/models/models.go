@@ -20,7 +20,7 @@ type ExtendedOrder struct {
 }
 
 type Delivery struct {
-	ID      int    `json:"id"`
+	ID      int64  `json:"id"`
 	Name    string `json:"name" validate:"required"`
 	Phone   string `json:"phone" validate:"required,e164"` // e164 -> +734264
 	Zip     string `json:"zip" validate:"required"`
@@ -31,7 +31,7 @@ type Delivery struct {
 }
 
 type Payment struct {
-	ID           int     `json:"id"`
+	ID           int64   `json:"id"`
 	Transaction  string  `json:"transaction" validate:"required"`
 	RequestID    string  `json:"request_id" validate:"omitempty"`
 	Currency     string  `json:"currency" validate:"required,len=3,uppercase"`
@@ -45,12 +45,12 @@ type Payment struct {
 }
 
 type Order struct {
-	ID                int       `json:"id"`
+	ID                int64     `json:"id"`
 	OrderUID          string    `json:"order_uid" validate:"required"`
 	TrackNumber       string    `json:"track_number" validate:"required"`
 	Entry             string    `json:"entry" validate:"required"`
-	DeliveryID        int       `json:"delivery_id"`
-	PaymentID         int       `json:"payment_id"`
+	DeliveryID        int64     `json:"delivery_id"`
+	PaymentID         int64     `json:"payment_id"`
 	Locale            string    `json:"locale" validate:"required"`
 	InternalSignature string    `json:"internal_signature" validate:"omitempty"`
 	CustomerID        string    `json:"customer_id" validate:"required"`
@@ -62,8 +62,8 @@ type Order struct {
 }
 
 type Item struct {
-	ID          int     `json:"id"`
-	OrderID     int     `json:"order_id"`
+	ID          int64   `json:"id"`
+	OrderID     int64   `json:"order_id"`
 	ChrtID      int     `json:"chrt_id" validate:"required"`
 	TrackNumber string  `json:"track_number" validate:"required"`
 	Price       float64 `json:"price" validate:"required,gt=0"`

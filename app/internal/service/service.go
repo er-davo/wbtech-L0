@@ -15,7 +15,7 @@ type Service struct {
 
 	repo repository.ExtendedOrderRepository
 
-	cache *cache.Cache[int, *models.ExtendedOrder]
+	cache *cache.Cache[int64, *models.ExtendedOrder]
 
 	log *zap.Logger
 }
@@ -29,7 +29,7 @@ func NewService(
 	return &Service{
 		db:    db,
 		repo:  repo,
-		cache: cache.New[int, *models.ExtendedOrder](orderCacheSize),
+		cache: cache.New[int64, *models.ExtendedOrder](orderCacheSize),
 		log:   log,
 	}
 }
@@ -59,24 +59,24 @@ func (s *Service) CreateExtendedOrder(ctx context.Context, eo *models.ExtendedOr
 
 	s.cache.Add(eo.Order.ID, eo)
 
-	s.log.Info("order created and cached", zap.Int("id", eo.Order.ID), zap.String("order_uid", eo.Order.OrderUID))
+	s.log.Info("order created and cached", zap.Int64("id", eo.Order.ID), zap.String("order_uid", eo.Order.OrderUID))
 
 	return nil
 }
 
-func (s *Service) GetExtendedOrder(ctx context.Context, id int) (*models.ExtendedOrder, error) {
+func (s *Service) GetExtendedOrder(ctx context.Context, id int64) (*models.ExtendedOrder, error) {
 	if eo, ok := s.cache.Get(id); ok {
-		s.log.Info("order loaded from cache", zap.Int("id", id))
+		s.log.Info("order loaded from cache", zap.Int64("id", id))
 		return eo, nil
 	}
 
 	eo, err := s.repo.GetExtendedOrder(ctx, id)
 	if err != nil {
-		s.log.Error("failed to load order from db", zap.Error(err), zap.Int("id", id))
+		s.log.Error("failed to load order from db", zap.Error(err), zap.Int64("id", id))
 		return nil, err
 	}
 
-	s.log.Info("order loaded from db", zap.Int("id", id))
+	s.log.Info("order loaded from db", zap.Int64("id", id))
 
 	return eo, nil
 }

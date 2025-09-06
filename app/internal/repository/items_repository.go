@@ -13,11 +13,10 @@ import (
 type ItemsRepository interface {
 	CreateItem(ctx context.Context, tx pgx.Tx, item *models.Item) error
 	CreateItems(ctx context.Context, tx pgx.Tx, items []*models.Item) error
-	Get(ctx context.Context, tx pgx.Tx, id int) (*models.Item, error)
-	GetItems(ctx context.Context, tx pgx.Tx, orderID int) ([]*models.Item, error)
-	GetByOrderIDs(ctx context.Context, tx pgx.Tx, orderIDs []int) ([]*models.Item, error)
+	Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Item, error)
+	GetItems(ctx context.Context, tx pgx.Tx, orderID int64) ([]*models.Item, error)
 	Update(ctx context.Context, tx pgx.Tx, item *models.Item) error
-	Delete(ctx context.Context, tx pgx.Tx, id int) error
+	Delete(ctx context.Context, tx pgx.Tx, id int64) error
 }
 
 type itemsRepository struct {
@@ -69,7 +68,7 @@ func (r *itemsRepository) CreateItem(ctx context.Context, tx pgx.Tx, item *model
 			item.NMID,
 			item.Brand,
 			item.Status,
-		).Scan(item.ID)
+		).Scan(&item.ID)
 	}
 
 	return wrapDBError(err)
@@ -127,7 +126,7 @@ func (r *itemsRepository) CreateItems(ctx context.Context, tx pgx.Tx, items []*m
 	return nil
 }
 
-func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.Item, error) {
+func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int64) (*models.Item, error) {
 	if id <= 0 {
 		return nil, ErrInvalidID
 	}
@@ -184,7 +183,7 @@ func (r *itemsRepository) Get(ctx context.Context, tx pgx.Tx, id int) (*models.I
 	return item, wrapDBError(err)
 }
 
-func (r *itemsRepository) GetItems(ctx context.Context, tx pgx.Tx, orderID int) ([]*models.Item, error) {
+func (r *itemsRepository) GetItems(ctx context.Context, tx pgx.Tx, orderID int64) ([]*models.Item, error) {
 	if orderID <= 0 {
 		return nil, ErrInvalidID
 	}
@@ -231,72 +230,6 @@ func (r *itemsRepository) GetItems(ctx context.Context, tx pgx.Tx, orderID int) 
 
 	if len(items) == 0 {
 		return nil, ErrNotFound
-	}
-
-	return items, nil
-}
-
-func (r *itemsRepository) GetByOrderIDs(ctx context.Context, tx pgx.Tx, orderIDs []int) ([]*models.Item, error) {
-	if len(orderIDs) == 0 {
-		return nil, nil
-	}
-
-	query := `
-        SELECT
-			id,
-			order_id,
-			chrt_id,
-			track_number,
-			price,
-			rid,
-			name,
-			sale,
-			size,
-			total_price,
-			nm_id,
-			brand,
-			status
-		FROM items
-        WHERE order_id = ANY($1);
-    `
-
-	var rows pgx.Rows
-	var err error
-	if tx != nil {
-		rows, err = tx.Query(ctx, query, orderIDs)
-	} else {
-		rows, err = r.db.Query(ctx, query, orderIDs)
-	}
-	if err != nil {
-		return nil, wrapDBError(err)
-	}
-	defer rows.Close()
-
-	items := make([]*models.Item, 0, len(orderIDs))
-	for rows.Next() {
-		item := new(models.Item)
-		if err := rows.Scan(
-			&item.ID,
-			&item.OrderID,
-			&item.ChrtID,
-			&item.TrackNumber,
-			&item.Price,
-			&item.RID,
-			&item.Name,
-			&item.Sale,
-			&item.Size,
-			&item.TotalPrice,
-			&item.NMID,
-			&item.Brand,
-			&item.Status,
-		); err != nil {
-			return nil, wrapDBError(err)
-		}
-		items = append(items, item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, wrapDBError(err)
 	}
 
 	return items, nil
@@ -375,7 +308,7 @@ func (r *itemsRepository) Update(ctx context.Context, tx pgx.Tx, item *models.It
 	return wrapDBError(err)
 }
 
-func (r *itemsRepository) Delete(ctx context.Context, tx pgx.Tx, id int) error {
+func (r *itemsRepository) Delete(ctx context.Context, tx pgx.Tx, id int64) error {
 	if id <= 0 {
 		return ErrInvalidID
 	}

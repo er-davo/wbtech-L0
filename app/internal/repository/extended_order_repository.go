@@ -1,3 +1,4 @@
+//go:generate mockgen -source=internal/repository/extended_order_repository.go -destination=internal/mocks/mock_repository.go -package=mocks
 package repository
 
 import (
@@ -11,7 +12,7 @@ import (
 
 type ExtendedOrderRepository interface {
 	CreateExtendedOrder(ctx context.Context, eo *models.ExtendedOrder) error
-	GetExtendedOrder(ctx context.Context, id int) (*models.ExtendedOrder, error)
+	GetExtendedOrder(ctx context.Context, id int64) (*models.ExtendedOrder, error)
 	GetLastExtendedOrders(ctx context.Context, limit int) ([]*models.ExtendedOrder, error)
 	Orders() OrdersRepository
 	Items() ItemsRepository
@@ -87,7 +88,7 @@ func (r *extendedOrderRepository) CreateExtendedOrder(ctx context.Context, eo *m
 	return nil
 }
 
-func (r *extendedOrderRepository) GetExtendedOrder(ctx context.Context, id int) (*models.ExtendedOrder, error) {
+func (r *extendedOrderRepository) GetExtendedOrder(ctx context.Context, id int64) (*models.ExtendedOrder, error) {
 	if id < 0 {
 		return nil, ErrInvalidID
 	}
@@ -212,7 +213,7 @@ func (r *extendedOrderRepository) GetLastExtendedOrders(ctx context.Context, lim
 		eos = append(eos, eo)
 	}
 
-	orderIDs := make([]int, 0, len(eos))
+	orderIDs := make([]int64, 0, len(eos))
 	for _, eo := range eos {
 		orderIDs = append(orderIDs, eo.Order.ID)
 	}
@@ -227,7 +228,7 @@ func (r *extendedOrderRepository) GetLastExtendedOrders(ctx context.Context, lim
 	}
 	defer rows.Close()
 
-	items := make(map[int][]*models.Item)
+	items := make(map[int64][]*models.Item)
 	for rows.Next() {
 		item := new(models.Item)
 		if err := rows.Scan(

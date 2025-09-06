@@ -1,6 +1,6 @@
 CREATE TABLE items (
-    id SERIAL PRIMARY KEY,
-    order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
     chrt_id INT NOT NULL,
     track_number TEXT NOT NULL,
     price NUMERIC(10,2) NOT NULL,

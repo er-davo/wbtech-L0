@@ -1,5 +1,5 @@
 CREATE TABLE delivery (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     phone VARCHAR(20) NOT NULL,
     zip VARCHAR(20) NOT NULL,
